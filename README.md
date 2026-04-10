@@ -1,79 +1,108 @@
-# GenAI Assignment 03 — GANs for Image Synthesis
+# GenAI Assignment 03
 
-> **Course:** Generative AI (AI4009) | Spring 2026
-> **University:** FAST National University of Computer and Emerging Sciences
-> **Team Members:** Rana M. Ahmad (22F-8758) & Urwa Sajid (22F-3244)
+> A complete generative AI showcase built with PyTorch + Streamlit.
+>
+> Includes DCGAN, WGAN-GP, Pix2Pix, and CycleGAN with both standalone demos and one combined dashboard app.
 
----
+## Overview
 
-## What This Project Does
+This project was developed for **Generative AI (AI4009)** at **FAST NUCES** (Spring 2026).
 
-Three GAN-based image synthesis tasks, each with an interactive Streamlit demo and a unified combined dashboard for quick presentation and grading.
+The repository demonstrates three practical image-generation and image-translation tasks:
 
-| # | Model | Task |
-|---|-------|------|
-| Q1 | DCGAN vs WGAN-GP | Generate anime-style faces; compare training stability and mode collapse |
-| Q2 | Pix2Pix (cGAN) | Translate sketch images → realistic/colorized outputs |
-| Q3 | CycleGAN | Unpaired domain translation between Sketch ↔ Photo style |
+- **Q1:** Compare DCGAN vs WGAN-GP and visualize mode collapse behavior.
+- **Q2:** Translate sketch images to realistic/colorized outputs using Pix2Pix.
+- **Q3:** Perform unpaired domain translation using CycleGAN (Sketch <-> Photo style).
+- **Combined App:** Run all three questions from a single unified Streamlit UI.
 
----
+## What Makes This Project Strong
 
-## Project Structure
+- End-to-end interactive demos for all questions.
+- Single combined app for easy presentation and grading.
+- Supports local weight paths and direct upload of checkpoint files.
+- Handles large model uploads via Streamlit server/client config.
+- Includes both qualitative visualization and quantitative metrics (SSIM/PSNR in CycleGAN).
 
+## Question-Wise Summary
+
+| Question | Model            | Objective                                                  | Key Idea                                                        |
+| -------- | ---------------- | ---------------------------------------------------------- | --------------------------------------------------------------- |
+| Q1       | DCGAN vs WGAN-GP | Generate anime-style faces and compare diversity/stability | Wasserstein loss + gradient penalty improves training stability |
+| Q2       | Pix2Pix (cGAN)   | Sketch -> realistic image translation                      | U-Net generator + PatchGAN discriminator + L1 reconstruction    |
+| Q3       | CycleGAN         | Unpaired image-to-image translation                        | Cycle consistency enables translation without paired data       |
+
+## Repository Structure
+
+```text
+.
+|- App.py
+|- app_q1.py
+|- app_q2.py
+|- app_q3.py
+|- requirements.txt
+|- .streamlit/config.toml
+|- output/
+|  |- dcgan_generator_final.pth
+|  |- wgan_generator_final.pth
+|  |- pix2pix_generator_final.pth
+|  |- pix2pix_discriminator_final.pth
+|- cyclegan_weights.pt
+|- notebooks + report files
 ```
-GenAI-Assignment03/
-├── App.py                          # Combined dashboard (all 3 questions)
-├── app_q1.py                       # DCGAN vs WGAN-GP standalone
-├── app_q2.py                       # Pix2Pix standalone
-├── app_q3.py                       # CycleGAN standalone
-├── requirements.txt
-├── .streamlit/
-│   └── config.toml                 # Upload size config for large checkpoints
-├── output/
-│   ├── dcgan_generator_final.pth
-│   ├── wgan_generator_final.pth
-│   ├── pix2pix_generator_final.pth
-│   └── pix2pix_discriminator_final.pth
-└── cyclegan_weights.pt
-```
 
----
+## Default Checkpoint Paths
 
-## Setup
+The apps are configured with these defaults:
+
+| Model               | Default Path                         |
+| ------------------- | ------------------------------------ |
+| DCGAN Generator     | `output/dcgan_generator_final.pth`   |
+| WGAN-GP Generator   | `output/wgan_generator_final.pth`    |
+| Pix2Pix Generator   | `output/pix2pix_generator_final.pth` |
+| CycleGAN Checkpoint | `cyclegan_weights.pt`                |
+
+If your files are in different locations, update paths in the sidebar or upload checkpoints from the UI.
+
+## Installation
+
+### 1) Clone the repository
 
 ```bash
-# 1. Clone
 git clone https://github.com/Bilxl99/GenAI-Assignment03.git
 cd GenAI-Assignment03
+```
 
-# 2. Create virtual environment
+### 2) Create and activate virtual environment
+
+```bash
 python -m venv .venv
+```
 
-# Activate (Windows PowerShell)
+Windows PowerShell:
+
+```powershell
 .\.venv\Scripts\Activate.ps1
+```
 
-# Activate (Linux/macOS)
+Linux/macOS:
+
+```bash
 source .venv/bin/activate
+```
 
-# 3. Install dependencies
+### 3) Install dependencies
+
+```bash
 pip install -r requirements.txt
 ```
 
----
+## Run the Apps
 
-## Running the Apps
-
-### Recommended — Combined Dashboard
+### Combined Dashboard (recommended)
 
 ```bash
 streamlit run App.py
 ```
-
-The sidebar lets you switch between:
-- **Home** — project overview and model status
-- **Q1** — side-by-side DCGAN and WGAN-GP image grids
-- **Q2** — single or batch sketch translation with download support
-- **Q3** — bidirectional CycleGAN translation with cycle reconstruction and SSIM/PSNR metrics
 
 ### Standalone Demos
 
@@ -83,65 +112,57 @@ streamlit run app_q2.py
 streamlit run app_q3.py
 ```
 
----
+## Combined App Flow
 
-## Model Checkpoints
+When you launch `App.py`, the sidebar lets you switch between:
 
-Default paths expected by the apps:
+- **Home:** project overview and quick status.
+- **Q1:** generate side-by-side DCGAN and WGAN-GP image grids.
+- **Q2:** single or batch sketch translation with download support.
+- **Q3:** bidirectional CycleGAN translation with optional cycle reconstruction and metrics.
 
-| Model | Path |
-|-------|------|
-| DCGAN Generator | `output/dcgan_generator_final.pth` |
-| WGAN-GP Generator | `output/wgan_generator_final.pth` |
-| Pix2Pix Generator | `output/pix2pix_generator_final.pth` |
-| CycleGAN | `cyclegan_weights.pt` |
+## Streamlit Upload Configuration
 
-You can override paths from the sidebar or upload checkpoint files directly through the UI. Large `.pth` / `.pt` files are supported — the Streamlit config allows up to 4 GB uploads.
+Large model files are supported through `.streamlit/config.toml`:
 
----
+- `server.maxUploadSize = 4096`
+- `server.maxMessageSize = 4096`
+- `client.maxUploadSize = 4096`
 
-## Key Concepts
+This is useful for `.pth` / `.pt` checkpoints that are too large for default limits.
 
-**Q1 — DCGAN vs WGAN-GP**
-DCGAN uses standard GAN loss (binary cross-entropy) which is prone to mode collapse and training instability. WGAN-GP replaces this with Wasserstein distance + gradient penalty, producing more diverse and stable outputs.
+## Requirements
 
-**Q2 — Pix2Pix**
-A conditional GAN where both generator and discriminator receive the input sketch as context. Uses a U-Net generator for fine-grained reconstruction and a PatchGAN discriminator. L1 loss is added alongside adversarial loss to preserve structural detail.
+Main dependencies:
 
-**Q3 — CycleGAN**
-Enables unpaired image-to-image translation using two generators and two discriminators. Cycle consistency loss ensures `A → B → A` and `B → A → B` reconstructions are faithful, removing the need for paired training data.
+- streamlit
+- torch
+- torchvision
+- numpy
+- Pillow
+- scikit-image
 
----
-
-## Dependencies
-
-```
-streamlit
-torch
-torchvision
-numpy
-Pillow
-scikit-image
-```
-
-Full version list in `requirements.txt`.
-
----
+All versions are listed in `requirements.txt`.
 
 ## Troubleshooting
 
-| Issue | Fix |
-|-------|-----|
-| Model not loading | Check the path in the sidebar; verify checkpoint format |
-| Random/garbage output | Checkpoint missing — app falls back to randomly initialized weights |
-| Upload fails | Make sure `.streamlit/config.toml` exists and restart Streamlit |
-| Slow inference | CPU-only by default; GPU is used automatically if available |
-
----
+- **Model not loading:** Verify path and checkpoint format from the sidebar status messages.
+- **Random outputs:** Model file may be missing; app falls back to random-initialized weights.
+- **Upload fails:** Ensure `.streamlit/config.toml` is present and restart Streamlit.
+- **Slow inference:** Current setup runs on CPU by default for portability.
 
 ## Academic Context
 
-- **Course:** Generative AI — AI4009
+- **Course:** Generative AI (AI4009)
 - **University:** FAST NUCES
 - **Semester:** Spring 2026
 - **Assignment:** 03
+
+## Contributors
+
+- 22F-3845
+- 22F-3360
+
+---
+
+If this repository helps your work, consider starring it on GitHub.
