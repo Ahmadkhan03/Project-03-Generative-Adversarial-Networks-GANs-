@@ -1,65 +1,147 @@
 # GenAI Assignment 03 — GANs for Image Synthesis
 
-**Course:** Generative AI (AI4009) | Spring 2026  
-**University:** FAST National University of Computer and Emerging Sciences  
-**Team Members:** Rana M Ahmad(22F-8758) & Urwa Sajid(22F-3244)
+> **Course:** Generative AI (AI4009) | Spring 2026
+> **University:** FAST National University of Computer and Emerging Sciences
+> **Team Members:** Rana M. Ahmad (22F-8758) & Urwa Sajid (22F-3244)
 
 ---
 
-## 📌 Overview
+## What This Project Does
 
-This repository contains implementations of three GAN-based image synthesis systems built in PyTorch and deployed via Streamlit.
+Three GAN-based image synthesis tasks, each with an interactive Streamlit demo and a unified combined dashboard for quick presentation and grading.
 
-| Question | Model | Task |
-|----------|-------|------|
-| Q1 | DCGAN + WGAN-GP | Tackling Mode Collapse |
-| Q2 | Pix2Pix | Sketch → Realistic Image Translation |
-| Q3 | CycleGAN | Unpaired Domain Adaptation |
+| # | Model | Task |
+|---|-------|------|
+| Q1 | DCGAN vs WGAN-GP | Generate anime-style faces; compare training stability and mode collapse |
+| Q2 | Pix2Pix (cGAN) | Translate sketch images → realistic/colorized outputs |
+| Q3 | CycleGAN | Unpaired domain translation between Sketch ↔ Photo style |
 
 ---
 
-## 🗂️ Repository Structure
-├── App.py                  # Main Streamlit app (all 3 questions)
-├── app_q1.py               # Q1 standalone app
-├── app_q2.py               # Q2 standalone app
-├── app_q3.py               # Q3 standalone app
-├── Q1_DCGAN_WGANGP_FIXED.ipynb
-├── Q2_Pix2Pix.ipynb
-├── Q3_CycleGAN.ipynb
+## Project Structure
+
+```
+GenAI-Assignment03/
+├── App.py                          # Combined dashboard (all 3 questions)
+├── app_q1.py                       # DCGAN vs WGAN-GP standalone
+├── app_q2.py                       # Pix2Pix standalone
+├── app_q3.py                       # CycleGAN standalone
 ├── requirements.txt
-└── .streamlit/
-└── config.toml
-
----
-
-## ❓ Question 1: DCGAN vs WGAN-GP (Mode Collapse)
-
-- **Dataset:** Pokemon Sprites + Anime Faces (64×64)
-- **Baseline:** DCGAN with BCE Loss
-- **Improved:** WGAN-GP with Wasserstein Loss + Gradient Penalty (λ=10)
-- **Key Result:** WGAN-GP eliminates mode collapse and produces more diverse samples
-
-## ❓ Question 2: Pix2Pix (Paired Image Translation)
-
-- **Dataset:** CUHK Face Sketch + Anime Sketch Colorization
-- **Model:** U-Net Generator + PatchGAN Discriminator
-- **Loss:** Adversarial Loss + L1 Reconstruction Loss
-- **Metrics:** SSIM, PSNR
-
-## ❓ Question 3: CycleGAN (Unpaired Domain Translation)
-
-- **Dataset:** TU-Berlin Sketch + Sketchy Dataset + Google QuickDraw
-- **Model:** ResNet-based Generators (G_AB, G_BA) + PatchGAN Discriminators
-- **Loss:** Adversarial + Cycle Consistency + Identity Loss
-- **Metrics:** SSIM, PSNR
-
----
-
-## 🚀 Running the App
-
-```bash
-pip install -r requirements.txt
-streamlit run App.py
+├── .streamlit/
+│   └── config.toml                 # Upload size config for large checkpoints
+├── output/
+│   ├── dcgan_generator_final.pth
+│   ├── wgan_generator_final.pth
+│   ├── pix2pix_generator_final.pth
+│   └── pix2pix_discriminator_final.pth
+└── cyclegan_weights.pt
 ```
 
 ---
+
+## Setup
+
+```bash
+# 1. Clone
+git clone https://github.com/Bilxl99/GenAI-Assignment03.git
+cd GenAI-Assignment03
+
+# 2. Create virtual environment
+python -m venv .venv
+
+# Activate (Windows PowerShell)
+.\.venv\Scripts\Activate.ps1
+
+# Activate (Linux/macOS)
+source .venv/bin/activate
+
+# 3. Install dependencies
+pip install -r requirements.txt
+```
+
+---
+
+## Running the Apps
+
+### Recommended — Combined Dashboard
+
+```bash
+streamlit run App.py
+```
+
+The sidebar lets you switch between:
+- **Home** — project overview and model status
+- **Q1** — side-by-side DCGAN and WGAN-GP image grids
+- **Q2** — single or batch sketch translation with download support
+- **Q3** — bidirectional CycleGAN translation with cycle reconstruction and SSIM/PSNR metrics
+
+### Standalone Demos
+
+```bash
+streamlit run app_q1.py
+streamlit run app_q2.py
+streamlit run app_q3.py
+```
+
+---
+
+## Model Checkpoints
+
+Default paths expected by the apps:
+
+| Model | Path |
+|-------|------|
+| DCGAN Generator | `output/dcgan_generator_final.pth` |
+| WGAN-GP Generator | `output/wgan_generator_final.pth` |
+| Pix2Pix Generator | `output/pix2pix_generator_final.pth` |
+| CycleGAN | `cyclegan_weights.pt` |
+
+You can override paths from the sidebar or upload checkpoint files directly through the UI. Large `.pth` / `.pt` files are supported — the Streamlit config allows up to 4 GB uploads.
+
+---
+
+## Key Concepts
+
+**Q1 — DCGAN vs WGAN-GP**
+DCGAN uses standard GAN loss (binary cross-entropy) which is prone to mode collapse and training instability. WGAN-GP replaces this with Wasserstein distance + gradient penalty, producing more diverse and stable outputs.
+
+**Q2 — Pix2Pix**
+A conditional GAN where both generator and discriminator receive the input sketch as context. Uses a U-Net generator for fine-grained reconstruction and a PatchGAN discriminator. L1 loss is added alongside adversarial loss to preserve structural detail.
+
+**Q3 — CycleGAN**
+Enables unpaired image-to-image translation using two generators and two discriminators. Cycle consistency loss ensures `A → B → A` and `B → A → B` reconstructions are faithful, removing the need for paired training data.
+
+---
+
+## Dependencies
+
+```
+streamlit
+torch
+torchvision
+numpy
+Pillow
+scikit-image
+```
+
+Full version list in `requirements.txt`.
+
+---
+
+## Troubleshooting
+
+| Issue | Fix |
+|-------|-----|
+| Model not loading | Check the path in the sidebar; verify checkpoint format |
+| Random/garbage output | Checkpoint missing — app falls back to randomly initialized weights |
+| Upload fails | Make sure `.streamlit/config.toml` exists and restart Streamlit |
+| Slow inference | CPU-only by default; GPU is used automatically if available |
+
+---
+
+## Academic Context
+
+- **Course:** Generative AI — AI4009
+- **University:** FAST NUCES
+- **Semester:** Spring 2026
+- **Assignment:** 03
